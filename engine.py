@@ -22,11 +22,13 @@ TILE_HEIGHT = 0
 def setup_images():
     filenames = {
             "Wall": "Wall Block.png",
+            "WaterBlock": "Water Block.png",
             "Block": "Plain Block.png",
             "GrassBlock": "Grass Block.png",
             "StoneBlock": "Stone Block.png",
             "ShortTree": "Tree Short.png",
             "TallTree": "Tree Tall.png",
+            "UglyTree": "Tree Ugly.png",
             "Rock": "Rock.png",
             "Chest": "Chest Closed.png",
             "DoorClosed": "Door Tall Closed.png",
@@ -67,16 +69,22 @@ class Board(object):
         self.offset_y = -SCREEN_Y/2 + board_height_px/2 + TILE_HEIGHT/4
 
 
-        # Make a map with a stoneblock border and filled with grass
+        # Make a map filled with grass!
         game_map = []
-        inner_width = width-2
+        #inner_width = width-2
         for i in range(height):
-            if i == 0 or i == height-1:
-                # On the boundaries
-                game_map.append(["Block"] * width)
+            if i == 3:
+                game_map.append(["WaterBlock"]*width)
             else:
-                row = ["Block"] + (["GrassBlock"] * inner_width) + ["Block"]
-                game_map.append(row)
+                game_map.append(["GrassBlock"]*width)
+
+        # Make a map with a stoneblock border and filled with grass
+            # if i == 0 or i == height-1:
+            #     # On the boundaries
+            #     game_map.append(["Block"] * width)
+            # else:
+            #     row = ["Block"] + (["GrassBlock"] * inner_width) + ["Block"]
+            #     game_map.append(row)
         
         self.base_board = game_map
         self.content_layer = []
