@@ -73,10 +73,9 @@ class Board(object):
         game_map = []
         #inner_width = width-2
         for i in range(height):
-            if i == 3:
-                game_map.append(["WaterBlock"]*width)
-            else:
-                game_map.append(["GrassBlock"]*width)
+                #game_map.append(["WaterBlock"]*width)
+           # else:
+            game_map.append(["GrassBlock"]*width)
 
         # Make a map with a stoneblock border and filled with grass
             # if i == 0 or i == height-1:

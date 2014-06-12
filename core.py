@@ -1,6 +1,6 @@
 class GameElement(object):
     IMAGE = "StoneBlock"
-    SOLID = False
+    CAN_PASS = False
     
     def __init__(self):
         self.sprite = None
