@@ -42,7 +42,8 @@ def setup_images():
             "Cat": "Character Cat Girl.png",
             "Horns": "Character Horn Girl.png",
             "Girl": "Character Pink Girl.png",
-            "Princess": "Character Princess Girl.png"
+            "Princess": "Character Princess Girl.png",
+            "Bug": "Enemy Bug.png"
             }
 
     for k,v in filenames.items():
@@ -77,14 +78,6 @@ class Board(object):
                 game_map.append(["WaterBlock"]*width)
             else:
                 game_map.append(["GrassBlock"]*width)
-
-        # Make a map with a stoneblock border and filled with grass
-            # if i == 0 or i == height-1:
-            #     # On the boundaries
-            #     game_map.append(["Block"] * width)
-            # else:
-            #     row = ["Block"] + (["GrassBlock"] * inner_width) + ["Block"]
-            #     game_map.append(row)
         
         self.base_board = game_map
         self.content_layer = []
@@ -180,7 +173,6 @@ class Board(object):
                 if el:
                     self.draw_active(el.sprite, x, y)
 
-
 class Obstacle(GameElement):
     pass
 
@@ -197,8 +189,10 @@ def reset(dt):
         print "this is el:" , el
         if el.IMAGE == "Girl":
             print "At Girl in the loop"
+            # el.EnemyBugAttack = False
             game.PLAYER = el
         board.set_el(initial_dict[el][0], initial_dict[el][1],el)
+
 
     board.draw_msg("Reset happened! Try again!")
 
@@ -215,7 +209,6 @@ def on_draw():
 def run():
     # Attempt to use custom board 
     global board
-    #global player
     setup_images()
     try:
         board = Board(game.GAME_WIDTH, game.GAME_HEIGHT)
@@ -265,7 +258,10 @@ def run():
     #             board.del_el(i,i)
 
     #     game.initialize()
-        
+    
+    # if PLAYER.EnemyBugAttack == True:
+    #     reset()
+
     # Set up the update clock
     pyglet.clock.schedule_interval(update, 1/10.)
     pyglet.clock.schedule_interval(reset, 30)

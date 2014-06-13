@@ -26,6 +26,7 @@ class Rock(GameElement):
 
 class Character(GameElement):
     IMAGE = "Girl"
+    # EnemyBugAttack = False
 
     def next_pos(self,direction):
         if direction == 'up':
@@ -149,10 +150,26 @@ class PassableStoneBlock(StoneBlock):
         PLAYER.inventory.append(self)
         GAME_BOARD.draw_msg("You just picked up a special stone.")
 
+class EnemyBug(GameElement):
+    IMAGE = "Bug"
+    CAN_PASS = False
+
+    def interact(self):
+        for i in range(GAME_BOARD.height):
+            for j in range(GAME_BOARD.width):
+                GAME_BOARD.del_el(j,i)
+                enemy_bug = EnemyBug()
+                GAME_BOARD.register(enemy_bug)
+                GAME_BOARD.set_el(j, i, enemy_bug)
+                GAME_BOARD.draw_msg("Enemy Bug Attack! Oh no. Wait until reset...")
+
+        # self.EnemyBugAttack = True
+
 def initialize():
 
 ### message
     GAME_BOARD.draw_msg("Travel through the enchanted forest to open the door. You have 30 seconds.")
+
 ### Girl player 
     girl = Character()
     GAME_BOARD.register(girl)
@@ -180,6 +197,11 @@ def initialize():
     GAME_BOARD.set_el(2, 1, bad_tree)
     GAME_BOARD.register_initial(bad_tree,(2,1))
 
+###enemy bug
+    enemy_bug = EnemyBug()
+    GAME_BOARD.register(enemy_bug)
+    GAME_BOARD.set_el(4, 4, enemy_bug)
+    GAME_BOARD.register_initial(enemy_bug,(4,4))
 
 ### water
     water_blocks = []
