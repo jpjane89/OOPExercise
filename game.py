@@ -26,7 +26,6 @@ class Rock(GameElement):
 
 class Character(GameElement):
     IMAGE = "Girl"
-    # EnemyBugAttack = False
 
     def next_pos(self,direction):
         if direction == 'up':
@@ -56,7 +55,6 @@ class MagicalTree(GameElement):
     CAN_PASS = False
 
     def interact(self):
-        print "This is the magical tree interact"
         rocks = []
         for i in range(GAME_WIDTH):
             rock = Rock()
@@ -92,12 +90,12 @@ class BadTree(GameElement):
     CAN_PASS = True
 
     def interact(self):
-        print "This is the bad tree interact"
         current_x = PLAYER.x
         current_y = PLAYER.y
 
         horn_player = Character()
         horn_player.IMAGE = 'Horns'
+        horn_player.inventory = PLAYER.inventory
 
         GAME_BOARD.del_el(PLAYER.x, PLAYER.y)
         GAME_BOARD.register(horn_player)
@@ -115,9 +113,6 @@ class Water(GameElement):
         GAME_BOARD.register(self)
         GAME_BOARD.set_el(x, y, self)
 
-    def interact(self):
-        GAME_BOARD.draw_msg("Can't get across this river without some stones!")
-
 class Door(GameElement):
     IMAGE = 'DoorClosed'
     CAN_PASS = False
@@ -131,7 +126,14 @@ class Door(GameElement):
             GAME_BOARD.del_el(self.x, self.y)
             GAME_BOARD.register(open_door)
             GAME_BOARD.set_el(self.x, self.y, open_door)
-            GAME_BOARD.draw_msg("You opened the door with all your stoneblocks.")
+            GAME_BOARD.draw_msg("You opened the door with all your stoneblocks! Yay!")
+
+            for i in range(GAME_BOARD.height):
+                for j in range(GAME_BOARD.width):
+                    GAME_BOARD.del_el(j,i)
+                    heart = Heart()
+                    GAME_BOARD.register(heart)
+                    GAME_BOARD.set_el(j, i, heart)
 
         elif len(PLAYER.inventory) < 3:
             GAME_BOARD.draw_msg("You're at the door but you need %r more stoneblocks." % (3 - len(PLAYER.inventory)))
@@ -163,7 +165,8 @@ class EnemyBug(GameElement):
                 GAME_BOARD.set_el(j, i, enemy_bug)
                 GAME_BOARD.draw_msg("Enemy Bug Attack! Oh no. Wait until reset...")
 
-        # self.EnemyBugAttack = True
+class Heart(GameElement):
+    IMAGE = "Heart"
 
 def initialize():
 

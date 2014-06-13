@@ -3,6 +3,7 @@
 import pyglet
 from pyglet.window import key
 from core import GameElement
+import sys
 
 SCREEN_X = 800
 SCREEN_Y = 700
@@ -188,11 +189,8 @@ def reset(dt):
     for el in initial_dict:
         print "this is el:" , el
         if el.IMAGE == "Girl":
-            print "At Girl in the loop"
-            # el.EnemyBugAttack = False
             game.PLAYER = el
         board.set_el(initial_dict[el][0], initial_dict[el][1],el)
-
 
     board.draw_msg("Reset happened! Try again!")
 
@@ -251,23 +249,11 @@ def run():
         print "No keyboard handler"
         pass
 
-    # define reset function
-    # def reset(dt):
-    #     for i in range(board.height):
-    #         for i in range(board.width):
-    #             board.del_el(i,i)
-
-    #     game.initialize()
-    
-    # if PLAYER.EnemyBugAttack == True:
-    #     reset()
-
     # Set up the update clock
     pyglet.clock.schedule_interval(update, 1/10.)
     pyglet.clock.schedule_interval(reset, 30)
     game.initialize()
     pyglet.app.run()
-    print update_list
 
 class UpdateWrapper(object):
     def __init__(self, fn):
