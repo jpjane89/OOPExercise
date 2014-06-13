@@ -73,9 +73,10 @@ class Board(object):
         game_map = []
         #inner_width = width-2
         for i in range(height):
-                #game_map.append(["WaterBlock"]*width)
-           # else:
-            game_map.append(["GrassBlock"]*width)
+            if i == 3:
+                game_map.append(["WaterBlock"]*width)
+            else:
+                game_map.append(["GrassBlock"]*width)
 
         # Make a map with a stoneblock border and filled with grass
             # if i == 0 or i == height-1:
@@ -156,6 +157,12 @@ class Board(object):
         el.sprite = pyglet.sprite.Sprite(image_file)
         update_list.append(el)
 
+    def register_initial(self,el,location):
+        image_file = IMAGES[el.IMAGE]
+        el.board = self
+        el.sprite = pyglet.sprite.Sprite(image_file)
+        initial_dict[el] = location
+
     def draw(self):
         # Y is inverted
         # Draw the background
@@ -181,8 +188,23 @@ def update(dt):
     for el in update_list:
         el.update(dt)
 
+def reset(dt):
+    for i in range(board.height):
+        for j in range(board.width):
+            board.del_el(j,i)
+
+    print initial_dict
+
+    for el in initial_dict:
+        print "this is el:" , el
+        if el.IMAGE == "Girl":
+            print "At Girl in the loop"
+            game.PLAYER = el
+        board.set_el(initial_dict[el][0], initial_dict[el][1],el)
+
 draw_list = []
 update_list = []
+initial_dict = {}
 
 @game_window.event
 def on_draw():
@@ -193,7 +215,7 @@ def on_draw():
 def run():
     # Attempt to use custom board 
     global board
-    global player
+    #global player
     setup_images()
     try:
         board = Board(game.GAME_WIDTH, game.GAME_HEIGHT)
@@ -235,16 +257,32 @@ def run():
     except AttributeError:
         print "No keyboard handler"
         pass
+
+    # define reset function
+    # def reset(dt):
+    #     for i in range(board.height):
+    #         for i in range(board.width):
+    #             board.del_el(i,i)
+
+    #     game.initialize()
         
     # Set up the update clock
     pyglet.clock.schedule_interval(update, 1/10.)
+    pyglet.clock.schedule_interval(reset, 10)
     game.initialize()
     pyglet.app.run()
+    print update_list
 
 class UpdateWrapper(object):
     def __init__(self, fn):
         self.fn = fn
     def update(self, dt):
+        self.fn()
+
+class ResetWrapper(object):
+    def __init__(self, fn):
+        self.fn = fn
+    def reset(self, dt):
         self.fn()
 
 if __name__ == "__main__":

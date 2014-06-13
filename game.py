@@ -4,6 +4,7 @@ from pyglet.window import key
 from core import GameElement
 import sys
 import random
+import time
 
 #### DO NOT TOUCH ####
 GAME_BOARD = None
@@ -45,21 +46,9 @@ class Character(GameElement):
         GameElement.__init__(self)
         self.inventory = []
 
-# class BlueGem(GameElement):
-#     IMAGE = 'BlueGem' 
-#     CAN_PASS = False
-
-#     def interact(self):
-#         player.inventory.append(self)
-#         GAME_BOARD.draw_msg("You just acquired a gem! You have %d items!" % (len(player.inventory)))
-
-# class OrangeGem(GameElement):
-#     IMAGE = 'OrangeGem'
-#     CAN_PASS = True
-
-#     def interact(self, player):
-#         player.go_home()
-#         GAME_BOARD.draw_msg("You just hit a wicked gem. Go back home!") 
+class RegularTree(GameElement):
+    IMAGE = 'ShortTree'
+    CAN_PASS = False
 
 class MagicalTree(GameElement):
     IMAGE = 'UglyTree'
@@ -72,22 +61,30 @@ class MagicalTree(GameElement):
             rock = Rock()
             rocks.append(rock)
         for i in range(len(rocks)):
+            GAME_BOARD.del_el(i,3)
             rocks[i].appear(i,3)
         GAME_BOARD.draw_msg("Use rock for crossing the scary river.")
 
-class RegularTree(GameElement):
-    IMAGE = 'ShortTree'
-    CAN_PASS = False
+class MultiplyingTree(RegularTree):
 
     def interact(self):
-        print "This is the regular tree interact"
-        random_x = random.randint(0,6)
-        random_y = random.randint(4,6)
+        
+        tree_count = 0
 
-        regular_tree = RegularTree()
-        GAME_BOARD.register(regular_tree)
-        GAME_BOARD.set_el(random_x, random_y, regular_tree)
+        while tree_count < 6:
+            random_x = random.randint(0,6)
+            random_y = random.randint(0,6)
 
+            existing_el = GAME_BOARD.get_el(random_x, random_y)
+            
+            if existing_el is None:
+                regular_tree = RegularTree()
+                GAME_BOARD.register(regular_tree)
+                GAME_BOARD.set_el(random_x, random_y, regular_tree)
+                tree_count += 1
+            else:
+                continue
+        GAME_BOARD.draw_msg("The MULTIPLYING tree! If you run into it too many times, you'll be lost in a forest!")
 
 class BadTree(GameElement):
     IMAGE = 'TallTree'
@@ -104,7 +101,7 @@ class BadTree(GameElement):
         GAME_BOARD.del_el(PLAYER.x, PLAYER.y)
         GAME_BOARD.register(horn_player)
         GAME_BOARD.set_el(current_x, current_y, horn_player)
-        GAME_BOARD.draw_msg("Oh no! You hit the poison tree! Now you are a horn-person!")
+        GAME_BOARD.draw_msg("Oh yes! You hit the special tree! Now you are a horn-person!")
 
         global PLAYER 
         PLAYER = horn_player
@@ -117,70 +114,74 @@ class Water(GameElement):
         GAME_BOARD.register(self)
         GAME_BOARD.set_el(x, y, self)
 
+    def interact(self):
+        GAME_BOARD.draw_msg("Can't get across this river without some stones!")
+
+class Door(GameElement):
+    IMAGE = 'DoorClosed'
+    CAN_PASS = False
+
+    def interact(self):
+        if len(PLAYER.inventory) == 3 and PLAYER.IMAGE == "Horns":
+            open_door = Door()
+            open_door.IMAGE = 'DoorOpen'
+            open_door.CAN_PASS = True
+
+            GAME_BOARD.del_el(self.x, self.y)
+            GAME_BOARD.register(open_door)
+            GAME_BOARD.set_el(self.x, self.y, open_door)
+            GAME_BOARD.draw_msg("You opened the door with all your stoneblocks.")
+
+        elif len(PLAYER.inventory) < 3:
+            GAME_BOARD.draw_msg("You're at the door but you need %r more stoneblocks." % (3 - len(PLAYER.inventory)))
+        elif PLAYER.IMAGE != "Horns":
+            GAME_BOARD.draw_msg("Get yourself some horns! (Hint: find a special tree)")
+
+
+class StoneBlock(GameElement):
+    IMAGE = 'StoneBlock'
+    CAN_PASS = False
+
+class PassableStoneBlock(StoneBlock):
+    CAN_PASS = True
+
+    def interact(self):
+        PLAYER.inventory.append(self)
+        GAME_BOARD.draw_msg("You just picked up a special stone.")
+
 def initialize():
 
-### player 
+### message
+    GAME_BOARD.draw_msg("Travel through the enchanted forest to open the door. You have 40 seconds and then the world resets.")
+
+### Girl player 
+    girl = Character()
+    GAME_BOARD.register(girl)
+    GAME_BOARD.set_el(0, 0, girl)
+    GAME_BOARD.register_initial(girl,(0,0))
 
     global PLAYER
-    PLAYER = Character()
-    GAME_BOARD.register(PLAYER)
-    GAME_BOARD.set_el(3, 2, PLAYER)
-    print PLAYER
-
-### rocks
-
-    # rock_positions = None
-    #  # [
-    #  #     (2,1),
-    #  #     (1,2),
-    #  #     (3,2),
-    #  #     (2,3)
-    #  #     ]
-    # rocks = []
-
-    # for pos in rock_positions:
-    #      rock = Rock()
-    #      GAME_BOARD.register(rock)
-    #      GAME_BOARD.set_el(pos[0], pos[1], rock)
-    #      rocks.append(rock)
-
-    # rocks[-1].CAN_PASS = False
-
-### game board message
-
-#     GAME_BOARD.draw_msg("This game is wicked awesome.")
-
-### gems
-
-#     gem = BlueGem()
-#     GAME_BOARD.register(gem)
-#     GAME_BOARD.set_el(3, 1, gem)
-
-#     gem2 = OrangeGem()
-#     GAME_BOARD.register(gem2)
-#     GAME_BOARD.set_el(0, 0, gem2)
+    PLAYER = girl
 
 ### magical trees
-
     magical_tree = MagicalTree()
     GAME_BOARD.register(magical_tree)
     GAME_BOARD.set_el(6, 1, magical_tree)
+    GAME_BOARD.register_initial(magical_tree,(6,1))
 
-### regular trees
+### Multiplying tree
+    multiplying_tree = MultiplyingTree()
+    GAME_BOARD.register(multiplying_tree)
+    GAME_BOARD.set_el(3, 5, multiplying_tree)
+    GAME_BOARD.register_initial(multiplying_tree,(3,5))
 
-    regular_tree = RegularTree()
-    GAME_BOARD.register(regular_tree)
-    GAME_BOARD.set_el(1, 1, regular_tree)
-
-
-
-
-### bad trees
-
+### bad tree
     bad_tree = BadTree()
     GAME_BOARD.register(bad_tree)
-    GAME_BOARD.set_el(4, 2, bad_tree)
-    
+    GAME_BOARD.set_el(2, 1, bad_tree)
+    GAME_BOARD.register_initial(bad_tree,(2,1))
+
+
 ### water
     water_blocks = []
     for i in range(GAME_WIDTH):
@@ -188,6 +189,47 @@ def initialize():
         water_blocks.append(water_block)
     for i in range(len(water_blocks)):
         water_blocks[i].appear(i,3)
+        GAME_BOARD.register_initial(water_blocks[i],(i,3))
+
+### door
+    door = Door()
+    GAME_BOARD.register(door)
+    GAME_BOARD.set_el(6, 6, door)
+    GAME_BOARD.register_initial(door,(6,6))
+
+### stoneblocks
+    normal_stones = 0
+    passable_stones = 0
+
+    while normal_stones < 3:
+        random_x = random.randint(2,6)
+        random_y = random.randint(3,6)
+
+        existing_el = GAME_BOARD.get_el(random_x, random_y)
+        
+        if existing_el is None:
+            stone_block = StoneBlock()
+            GAME_BOARD.register(stone_block)
+            GAME_BOARD.set_el(random_x, random_y, stone_block)
+            GAME_BOARD.register_initial(stone_block,(random_x, random_y))
+            normal_stones += 1
+        else:
+            continue
+
+    while passable_stones < 3:
+        random_x = random.randint(2,6)
+        random_y = random.randint(3,6)
+
+        existing_el = GAME_BOARD.get_el(random_x, random_y)
+        
+        if existing_el is None:
+            stone_block = PassableStoneBlock()
+            GAME_BOARD.register(stone_block)
+            GAME_BOARD.set_el(random_x, random_y, stone_block)
+            GAME_BOARD.register_initial(stone_block,(random_x, random_y))
+            passable_stones += 1
+        else:
+            continue
 
 def keyboard_handler():
     direction = None
