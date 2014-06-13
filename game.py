@@ -152,8 +152,7 @@ class PassableStoneBlock(StoneBlock):
 def initialize():
 
 ### message
-    GAME_BOARD.draw_msg("Travel through the enchanted forest to open the door. You have 40 seconds and then the world resets.")
-
+    GAME_BOARD.draw_msg("Travel through the enchanted forest to open the door. You have 30 seconds.")
 ### Girl player 
     girl = Character()
     GAME_BOARD.register(girl)
@@ -203,7 +202,7 @@ def initialize():
 
     while normal_stones < 3:
         random_x = random.randint(2,6)
-        random_y = random.randint(3,6)
+        random_y = random.randint(1,6)
 
         existing_el = GAME_BOARD.get_el(random_x, random_y)
         
